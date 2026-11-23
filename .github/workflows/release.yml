@@ -34,17 +34,34 @@ jobs:
           -p:EnableCompressionInSingleFile=true -p:DebugType=none
           -p:Version=${{ steps.version.outputs.number }} -o dist
 
+      # Needs a VirusTotal API key in the repository secret VT_API_KEY.
+      - name: Scan with VirusTotal
+        id: virustotal
+        uses: crazy-max/ghaction-virustotal@v5
+        # A missing key or an unreachable VirusTotal must not hold back the release.
+        continue-on-error: true
+        timeout-minutes: 10
+        with:
+          vt_api_key: ${{ secrets.VT_API_KEY }}
+          files: dist/NightCoopLauncher.exe
+
       - name: Create the release
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
+          VIRUSTOTAL_ANALYSIS: ${{ steps.virustotal.outputs.analysis }}
         run: |
           prerelease=""
           # A version with a suffix (1.1.0-beta.1) is not meant for everyone yet.
           if [[ "$GITHUB_REF_NAME" == *-* ]]; then prerelease="--prerelease"; fi
           sha256=$(sha256sum dist/NightCoopLauncher.exe | cut -d ' ' -f 1)
+          notes="SHA-256 of NightCoopLauncher.exe: \`$sha256\`"
+          # VirusTotal files a report under the file's hash, so the link only needs the upload to have worked.
+          if [[ -n "$VIRUSTOTAL_ANALYSIS" ]]; then
+            notes+=$'\n\n'"VirusTotal report: https://www.virustotal.com/gui/file/$sha256"
+          fi
           gh release create "$GITHUB_REF_NAME" dist/NightCoopLauncher.exe \
             --title "NightCoop Launcher $GITHUB_REF_NAME" \
             --generate-notes \
-            --notes "SHA-256 of NightCoopLauncher.exe: \`$sha256\`" \
+            --notes "$notes" \
             $prerelease

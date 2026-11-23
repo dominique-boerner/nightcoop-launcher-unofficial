@@ -14,6 +14,7 @@
   <a href="../../releases"><img alt="Downloads" src="https://img.shields.io/github/downloads/dominique-boerner/nightcoop-launcher-unofficial/total?color=fcee0a&labelColor=0a0a0b"></a>
   <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-fcee0a?labelColor=0a0a0b"></a>
   <img alt="Platform: Windows" src="https://img.shields.io/badge/platform-Windows-fcee0a?labelColor=0a0a0b">
+  <a href="../../releases/latest"><img alt="VirusTotal: releases are scanned" src="https://img.shields.io/badge/VirusTotal-scanned-fcee0a?labelColor=0a0a0b"></a>
 </p>
 
 <p align="center">
@@ -56,6 +57,10 @@ The launcher was developed with the help of [Claude](https://claude.com/claude-c
 
 You need a licensed copy of Cyberpunk 2077 (Steam, GOG or Epic) in a version the current NightCoop build
 supports. Windows may warn about an unknown publisher because the file is not code-signed.
+
+Releases after v1.1.0 are uploaded to [VirusTotal](https://www.virustotal.com) when they are built. The link to
+the report is in the release notes, next to the file's SHA-256, so you can check that the report belongs to the
+file you downloaded.
 
 ## What it does
 
@@ -118,6 +123,10 @@ git push origin v1.0.0
 
 The `Release` workflow then runs the tests, builds `NightCoopLauncher.exe` with that version and publishes a
 GitHub release with the file attached. A tag with a suffix, such as `v1.1.0-beta.1`, becomes a pre-release.
+
+Before publishing, the workflow uploads the file to VirusTotal and adds the link to the report to the release
+notes. This needs a [VirusTotal API key](https://docs.virustotal.com/reference/authentication) in the repository
+secret `VT_API_KEY`. Without the key the release is published as before, just without that link.
 
 ## Add a language
 
